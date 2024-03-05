@@ -4,17 +4,25 @@ const initialTab = getActiveTab()
 
 initialTab.classList.add('active')
 
-renderTabContentById(activeTabId);
+renderTabContentById(activeTabId)
 
 // ---
 
+const goodsInCart = []
+
+const tabWithCounter = document.querySelector('button[data-goods-count]')
+
 const tabs = document.querySelectorAll('button.tab')
 
-for (let i = 0; i < tabs.length; i++) {
-	const tab = tabs[i]
+addClickListeners(tabs, clickHandler)
 
-	tab.addEventListener('click', clickHandler)
-}
+const addInCartButtons = document.querySelectorAll(
+	'button[data-add-in-cart="true"]'
+)
+
+addClickListeners(addInCartButtons, addInCartHandler)
+
+// ---
 
 function clickHandler(event) {
 	const activeTab = getActiveTab()
@@ -26,31 +34,51 @@ function clickHandler(event) {
 
 	removeActiveTabContent()
 
-	renderTabContentById(activeTabId);
+	renderTabContentById(activeTabId)
+}
+
+function addInCartHandler() {
+	const product = createProduct()
+	goodsInCart.push(product)
+
+	tabWithCounter.dataset.goodsCount = goodsInCart.length
+}
+
+function addClickListeners(elements, callback) {
+	for (let i = 0; i < elements.length; i++) {
+		const element = elements[i]
+		element.addEventListener('click', callback)
+	}
+}
+
+function createProduct() {
+	return {
+		name: 'БМВ М8',
+		price: 500,
+	}
 }
 
 function getActiveTab() {
 	return document.querySelector(`button[data-tab-id="${activeTabId}"]`)
 }
 
-function removeActiveTabContent(){
-    const activeContent = document.querySelector(
-			`[data-active-tab-content="true"]`
-		);
+function removeActiveTabContent() {
+	const activeContent = document.querySelector(
+		`[data-active-tab-content="true"]`
+	)
 
-		activeContent.remove();
+	activeContent.remove()
 }
 
-
 function renderTabContentById(tabId) {
-    const tabsContainer = document.querySelector('.tabs')
-    let html = '';
+	const tabsContainer = document.querySelector('.tabs')
+	let html = ''
 	if (tabId === 'goods') {
-		html = renderGoods();
+		html = renderGoods()
 	} else {
-		html = renderCart();
+		html = renderCart()
 	}
-    tabsContainer.insertAdjacentHTML('afterend', html)
+	tabsContainer.insertAdjacentHTML('afterend', html)
 }
 
 // рендерим товары
@@ -62,7 +90,7 @@ function renderGoods() {
             <div class="product-list">
                 <h3>BMW m8</h3>
                 <p class="price">₽ 300</p>
-                <button class="button">В корзину</button>
+                <button data-add-in-cart="true" class="button">В корзину</button>
             </div>
         </div>
 
@@ -71,7 +99,7 @@ function renderGoods() {
             <div class="product-list">
                 <h3>BMW m3</h3>
                 <p class="price">₽ 150</p>
-                <button class="button">В корзину</button>
+                <button data-add-in-cart="true" class="button">В корзину</button>
             </div>
         </div>
 
@@ -80,7 +108,7 @@ function renderGoods() {
             <div class="product-list">
                 <h3>BMW m5</h3>
                 <p class="price">₽ 260</p>
-                <button class="button">В корзину</button>
+                <button data-add-in-cart="true" class="button">В корзину</button>
             </div>
         </div>
     </div>
