@@ -16,108 +16,102 @@ const tabs = document.querySelectorAll('button.tab')
 
 addClickListeners(tabs, clickHandler)
 
-const addInCartButtons = document.querySelectorAll(
-	'button[data-add-in-cart="true"]'
-)
-
-addClickListeners(addInCartButtons, addInCartHandler)
-
 // ---
 
 function clickHandler(event) {
-	const activeTab = getActiveTab()
+    const activeTab = getActiveTab()
 
-	activeTab.classList.remove('active')
-	event.target.classList.add('active')
+    activeTab.classList.remove('active')
+    event.target.classList.add('active')
 
-	activeTabId = event.target.dataset.tabId
+    activeTabId = event.target.dataset.tabId
 
-	removeActiveTabContent()
+    removeActiveTabContent()
 
-	renderTabContentById(activeTabId)
+    renderTabContentById(activeTabId)
 }
 
-function addInCartHandler() {
-	const product = createProduct()
-	goodsInCart.push(product)
-
-	tabWithCounter.dataset.goodsCount = goodsInCart.length
+function addInCartHandler(product) {
+    return () => {
+        goodsInCart.push(product)
+        tabWithCounter.dataset.goodsCount = goodsInCart.length
+    }
 }
 
 function addClickListeners(elements, callback) {
-	for (let i = 0; i < elements.length; i++) {
-		const element = elements[i]
-		element.addEventListener('click', callback)
-	}
+    for (let i = 0; i < elements.length; i++) {
+        const element = elements[i]
+        element.addEventListener('click', callback)
+    }
 }
 
-function createProduct() {
-	return {
-		name: 'БМВ М8',
-		price: 500,
-	}
+function createProduct(product) {
+    return {
+			name: product.name ? product.name : 'Имя неизвестно',
+			price: product.price ? product.price : 'Цена неизвестна',
+			imgSrc: product.imgSrc ? product.imgSrc : 'sources/images/1.jpg',
+		};
 }
 
 function getActiveTab() {
-	return document.querySelector(`button[data-tab-id="${activeTabId}"]`)
+    return document.querySelector(`button[data-tab-id="${activeTabId}"]`)
 }
 
 function removeActiveTabContent() {
-	const activeContent = document.querySelector(
-		`[data-active-tab-content="true"]`
-	)
+    const activeContent = document.querySelector(
+        `[data-active-tab-content="true"]`
+    )
 
-	activeContent.remove()
+    activeContent.remove()
 }
 
 function renderTabContentById(tabId) {
-	const tabsContainer = document.querySelector('.tabs')
-	let html = ''
-	if (tabId === 'goods') {
-		html = renderGoods()
-	} else {
-		html = renderCart()
-	}
-	tabsContainer.insertAdjacentHTML('afterend', html)
+    const tabsContainer = document.querySelector('.tabs')
+    if (tabId === 'goods') {
+        const html = renderGoods()
+        tabsContainer.after(html)
+    } else {
+        const html = renderCart()
+        tabsContainer.insertAdjacentHTML('afterend', html)
+    }
 }
 
 // рендерим товары
 function renderGoods() {
-	return `
-    <div data-active-tab-content="true" class="product-items">
-        <div class="product-item">
-            <img src="sources/images/bmw1.jpg">
-            <div class="product-list">
-                <h3>BMW m8</h3>
-                <p class="price">₽ 300</p>
-                <button data-add-in-cart="true" class="button">В корзину</button>
-            </div>
-        </div>
+    const div = document.createElement('div');
+    div.dataset.activeTabContent = 'true';
+    div.className = 'product-items';
 
-        <div class="product-item">
-            <img src="sources/images/bmw2.jpg">
-            <div class="product-list">
-                <h3>BMW m3</h3>
-                <p class="price">₽ 150</p>
-                <button data-add-in-cart="true" class="button">В корзину</button>
-            </div>
-        </div>
 
-        <div class="product-item">
-            <img src="sources/images/bmw3.jpg">
+    for (let i = 0; i < GOODS.length; i++) {
+        const product = createProduct(GOODS[i]);
+        
+        const clickHandler = addInCartHandler(product);
+
+        const button = document.createElement('button');
+		button.className = 'button';
+		button.textContent = 'В корзину';
+		button.addEventListener('click', clickHandler);
+
+        const productBlock = document.createElement('div');
+		productBlock.className = 'product-item';
+		productBlock.innerHTML = `
+            <img src="${product.imgSrc}">
             <div class="product-list">
-                <h3>BMW m5</h3>
-                <p class="price">₽ 260</p>
-                <button data-add-in-cart="true" class="button">В корзину</button>
+                <h3>${product.name}</h3>
+                <p class="price">${product.price}</p>
             </div>
-        </div>
-    </div>
-	`
+        `;
+		productBlock.querySelector('.product-list').append(button);
+        div.append(productBlock);
+
+    }
+    return div;
 }
 
 // рендерим корзину
 function renderCart() {
-	return `
+    return `
     <div data-active-tab-content="true" class="cart-items">
         <div class="cart-item">
             <div class="cart-item-title">BMW m8</div>
